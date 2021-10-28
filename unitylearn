@@ -1,0 +1,73 @@
+using System;
+
+//objeyi ilerletme(objeye atanan c# dosyasında)otomatik ilerler
+transform.Translate(Vector3.forward * speed * Time.deltaTime);
+//objeyi inputlarla  ileri, geri hareket ettirme
+private float horizantalInput;
+private float verticalInput;
+//bu şekilde public yaparsak unity içerisinden değiştirebiliriz
+public float speed;
+
+horizantalInput = Input.GetAxis("Horizontal");
+verticalInput = Input.GetAxis("Vertical");
+transform.Translate(Vector3.forward * Time.deltaTime * verticalInput * speed);
+transform.Translate(Vector3.right * Time.deltaTime * horizantalInput * speed);
+
+
+
+//objenin hareketini çeşitli akslarda kısıtlama
+float positionlimitery = transform.position.y;
+float positionlimiterz = transform.position.z;
+float positionlimiterx = transform.position.x;
+
+float xMin = -20;
+float xMax = 20;
+float zMin = -10;
+float zMax = 30;
+if (transform.position.x < xMin)
+{
+    transform.position = new Vector3(xMin, positionlimitery, positionlimiterz);
+}
+else if (transform.position.x > xMax)
+{
+    transform.position = new Vector3(xMax, positionlimitery, positionlimiterz);
+}
+
+if (transform.position.z < zMin)
+{
+    transform.position = new Vector3(positionlimiterx, positionlimitery, zMin);
+}
+else if (transform.position.z > zMax)
+{
+    transform.position = new Vector3(positionlimiterx, positionlimitery, zMax);
+}
+
+
+//butonla obje oluşturup süreyle otomatik silme
+public GameObject foodPrefab;
+if (Input.GetKeyUp(KeyCode.Space))
+{
+
+    Destroy(Instantiate(foodPrefab, transform.position, foodPrefab.transform.rotation), 2);
+}
+
+
+//OBje, nesne otomatik spawn etme-array kullanımı ile hayvanlar arasından rastgele seçim
+
+private void SpawnAnimal()
+{
+    float positionx = Random.Range(-15, 20);
+    int animalIndex = Random.Range(0, animal.Length);
+    Instantiate(animal[animalIndex], new Vector3(positionx, 0, 20), animal[animalIndex].transform.rotation);
+}
+
+//update metodu kullanmadan otomatik metot tekrarlatma-Spawnanimal metodunu, 1 saniyede bir, spawnRepeat değişkeni kadar tekrar ediyor
+InvokeRepeating("SpawnAnimal", 1.0f, spawnRepeat);
+
+
+//objeler birbirine çarptığında yoketme(box colliderda is trigger aktif olmalı)
+private void OnTriggerEnter(Collider other)
+{
+    Destroy(gameObject);
+    Destroy(other.gameObject);
+}
